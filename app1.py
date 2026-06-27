@@ -19,10 +19,20 @@ import matplotlib.pyplot as plt
 import tempfile
 import os
 import pickle
+@st.cache_resource
+def load_database():
+    with open("database.pkl", "rb") as f:
+        return pickle.load(f)
 
-SONG_FOLDER = "songs"
-with open("database.pkl", "rb") as f:
-    database = pickle.load(f)
+database = load_database()
+
+@st.cache_data
+def load_library_names():
+    song_names = set()
+    for matches in database.values():
+        for song_name, _ in matches:
+            song_names.add(song_name)
+    return sorted(list(song_names))
 st.set_page_config(
     page_title="EE200 Audio Fingerprinting",
     layout="wide"
@@ -38,83 +48,25 @@ tab1, tab2, tab3 = st.tabs(
     ["📚 Library", "🎯 Identify", "📦 Batch"]
 )
 with tab1:
-
     st.subheader("Library")
-
-    # In app.py, replace the get_library_data call with:
-    @st.cache_data
-    def load_library():
-        return get_library_data(SONG_FOLDER)
-
-    library_data = load_library()
-
-    @st.cache_resource
-    def load_database():
-        with open("database.pkl", "rb") as f:
-            return pickle.load(f)
-
-    database = load_database()
-
+    song_names = load_library_names()
+    st.success(f"{len(song_names)} songs indexed in database")
     cols = st.columns(4)
-
-    for idx, song in enumerate(library_data):
-
+    for idx, name in enumerate(song_names):
         with cols[idx % 4]:
-
-            st.container(border=True)
-            song_name = os.path.splitext(song["name"])[0]
-
-            st.markdown(
-                f"""
-                <div style="
-                    height:70px;
-                    overflow:hidden;
-                    text-align:center;
-                ">
-                    <b>{song_name}</b><br>
-                    {song['hashes']:,} hashes
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            fig, ax = plt.subplots(
-                figsize=(3,2)
-            )
-
-            peaks = song["peaks"]
-
-            freq = song["frequency"]
-
-            time_vals = song["time"]
-
-            ax.set_facecolor("black")
-
-            colors = [
-                "#00FFFF",   # cyan
-                "#FFD700",   # gold
-                "#FF69B4",   # pink
-                "#AD8CFF",   # purple
-                "#7CFC00"    # green
-            ]
-            display_peaks = peaks[::3]
-            ax.scatter(
-                time_vals[peaks[:,1]],
-                freq[peaks[:,0]],
-                s=0.1,
-                c=colors[idx % len(colors)]
-            )
-            
-            ax.set_xticks([])
-            ax.set_yticks([])
-
-            ax.set_xlabel("")
-            ax.set_ylabel("")
-
-            for spine in ax.spines.values():
-                spine.set_visible(False)
-
-            st.pyplot(fig)
+            with st.container(border=True):
+                st.markdown(
+                    f"""
+                    <div style="
+                        height:70px;
+                        overflow:hidden;
+                        text-align:center;
+                    ">
+                        <b>{os.path.splitext(name)[0]}</b>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 with tab2:
 
     st.subheader("Identify a Clip")
