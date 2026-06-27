@@ -42,6 +42,7 @@ def plot_spectrograms(songs,nperseg=4095,show_plot=True):
 
             plt.tight_layout()
             plt.show()
+            plt.close()
 
     return spectrograms
 def plot_constellation_maps(spectrograms, min_distance = 11 , percentile_threshold = 95 , show_plot= True):
@@ -82,6 +83,7 @@ def plot_constellation_maps(spectrograms, min_distance = 11 , percentile_thresho
         
             plt.tight_layout()
             plt.show()
+            plt.close(fig)
     return constellation_data
 
 def hash_database(constellation_data , num_pairs= 5):
@@ -222,6 +224,7 @@ def plot_offset_histogram(matched_song, offset_count):
         print("No offsets to plot")
         return
     fig, ax = plt.subplots(figsize=(12,6))
+    plt.close(fig)
 
     ax.bar(offsets, counts,width=30,color='blue')
 

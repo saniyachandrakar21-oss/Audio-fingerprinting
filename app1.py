@@ -150,20 +150,21 @@ with tab2:
                 The uploaded audio clip is converted into a spectrogram, providing a time-frequency representation of the signal.
                 """)
 
-                fig, ax = plt.subplots(figsize=(4,3))
+                fig, ax = plt.subplots(figsize=(4, 3))
 
-                freq, time, Sxx = scipy_spectrogram(audio, fs)
+                # ADD THESE LINES:
+                from scipy.signal import spectrogram as scipy_spectrogram
+                freq_s, time_s, Sxx = scipy_spectrogram(audio, fs, nperseg=512)
                 Sxx_db = 10 * np.log10(Sxx + 1e-10)
-                ax.pcolormesh(time, freq, Sxx_db, shading="gouraud")
+                ax.pcolormesh(time_s, freq_s, Sxx_db, shading="gouraud")
+                ax.set_ylim(0, 5000)
                 ax.set_xlabel("Time (s)")
                 ax.set_ylabel("Frequency (Hz)")
-                
-                ax.set_ylim(0, 5000)
 
-                left, center, right = st.columns([1,2,1])
-
+                left, center, right = st.columns([1, 2, 1])
                 with center:
                     st.pyplot(fig)
+                plt.close(fig)
 
                 st.markdown(
                     """
@@ -174,62 +175,49 @@ with tab2:
                 )
                 col1, col2 = st.columns(2)
                 with col1:
+                    fig1, ax1 = plt.subplots(figsize=(6, 4))
 
-                    fig1, ax1 = plt.subplots(figsize=(6,4))
+                    peaks = np.array(constellation_data[0]["peaks"])
+                    frequency = np.array(constellation_data[0]["frequency"])
+                    time_vals = np.array(constellation_data[0]["time"])
+                    spec_in_db = np.array(constellation_data[0]["spec_in_db"])
 
-                    peaks = constellation_data[0]["peaks"]
+                    freq_s, time_s, Sxx = scipy_spectrogram(audio, fs, nperseg=512)
+                    Sxx_db = 10 * np.log10(Sxx + 1e-10)
 
-                    frequency = constellation_data[0]["frequency"]
-
-                    time_vals = constellation_data[0]["time"]
-
-                    spec_in_db = constellation_data[0]["spec_in_db"]
-
-                    ax1.pcolormesh(
-                        time_vals,
-                        frequency,
-                        spec_in_db,
-                        shading="gouraud"
-                    )
-
+                    ax1.pcolormesh(time_s, freq_s, Sxx_db, shading="gouraud")
                     ax1.scatter(
-                        time_vals[peaks[:,1]],
-                        frequency[peaks[:,0]],
+                        time_vals[peaks[:, 1]],
+                        frequency[peaks[:, 0]],
                         c="red",
                         s=4
                     )
-
-                    ax1.set_title(
-                        "Spectrogram with Peaks"
-                    )
+                    ax1.set_title("Spectrogram with Peaks")
                     ax1.set_ylim(0, 5000)
-
+                    ax1.set_xlabel("Time (s)")
+                    ax1.set_ylabel("Frequency (Hz)")
                     st.pyplot(fig1)
+                    plt.close(fig1)
 
                 with col2:
-
-                    fig2, ax2 = plt.subplots(figsize=(6,4))
-
+                    fig2, ax2 = plt.subplots(figsize=(6, 4))
                     ax2.scatter(
-                        time_vals[peaks[:,1]],
-                        frequency[peaks[:,0]],
+                        time_vals[peaks[:, 1]],
+                        frequency[peaks[:, 0]],
                         c="red",
                         s=4
                     )
-
-                    ax2.set_title(
-                        "Constellation Map"
-                    )
-
+                    ax2.set_title("Constellation Map")
+                    ax2.set_xlabel("Time (s)")
+                    ax2.set_ylabel("Frequency (Hz)")
                     st.pyplot(fig2)
-                st.divider()
+                    plt.close(fig2)
 
+                st.divider()
                 st.metric(
                     "Fingerprint Hashes Generated",
                     len(query_hashes[0]["hashes"])
                 )
-
-                st.divider()
                 st.markdown(
                 """
                 # STEP 3 : DATABASE MATCHING
@@ -241,8 +229,9 @@ with tab2:
                     matched_song,
                     offset_count
                 )
-
-                st.pyplot(hist_fig)
+                if hist_fig:
+                    st.pyplot(hist_fig)
+                    plt.close(hist_fig)
 
                 st.success(
                     f"Matched Song : {matched_song}"
@@ -322,111 +311,89 @@ with tab3:
                         # STEP 1
                         # =====================
 
-                        st.markdown("""
-                        # STEP 1 : SPECTROGRAM GENERATION
+                        st.markdown(f"""
+                        ## 🎯 MATCH FOUND
 
-                        The uploaded audio clip is converted into a spectrogram, providing a time-frequency representation of the signal. This serves as the foundation for extracting unique audio features.
+                        ### {matched_song}
                         """)
-                        fig, ax = plt.subplots(
-                            figsize=(4,3)
-                        )
 
-                        freq, time_s, Sxx = scipy_spectrogram(audio, fs)
+                        st.markdown(
+                            """
+                        ## STEP 1 : SPECTROGRAM GENERATION
+
+                        The uploaded audio clip is converted into a spectrogram, providing a time-frequency representation of the signal.
+                        """)
+
+                        fig, ax = plt.subplots(figsize=(4, 3))
+
+                        # ADD THESE LINES:
+                        from scipy.signal import spectrogram as scipy_spectrogram
+                        freq_s, time_s, Sxx = scipy_spectrogram(audio, fs, nperseg=512)
                         Sxx_db = 10 * np.log10(Sxx + 1e-10)
-                        ax.pcolormesh(time_s, freq, Sxx_db, shading="gouraud")
+                        ax.pcolormesh(time_s, freq_s, Sxx_db, shading="gouraud")
+                        ax.set_ylim(0, 5000)
                         ax.set_xlabel("Time (s)")
                         ax.set_ylabel("Frequency (Hz)")
 
-                        ax.set_ylim(0,5000)
+                        left, center, right = st.columns([1, 2, 1])
+                        with center:
+                            st.pyplot(fig)
+                        plt.close(fig)
 
-                        st.pyplot(fig)
+                        st.markdown(
+                            """
+                        ## STEP 2 : PEAK DETECTION & FINGERPRINT GENERATION
 
-                        # =====================
-                        # STEP 2
-                        # =====================
-
-                        st.markdown("""
-                        # STEP 2 : PEAK DETECTION & FINGERPRINT GENERATION
-
-                        Prominent spectral peaks are extracted to form a constellation map, and peak pairs are converted into fingerprint hashes for efficient song identification.
-                        """)
-
+                        Prominent spectral peaks are extracted to form a constellation map, and peak pairs are converted into fingerprint hashes.
+                        """
+                        )
                         col1, col2 = st.columns(2)
-
-                        peaks = constellation_data[0]["peaks"]
-
-                        frequency = constellation_data[0]["frequency"]
-
-                        time_vals = constellation_data[0]["time"]
-
-                        spec_in_db = constellation_data[0]["spec_in_db"]
-
                         with col1:
+                            fig1, ax1 = plt.subplots(figsize=(6, 4))
 
-                            fig1, ax1 = plt.subplots(
-                                figsize=(5,3)
-                            )
+                            peaks = np.array(constellation_data[0]["peaks"])
+                            frequency = np.array(constellation_data[0]["frequency"])
+                            time_vals = np.array(constellation_data[0]["time"])
+                            spec_in_db = np.array(constellation_data[0]["spec_in_db"])
 
-                            ax1.pcolormesh(
-                                time_vals,
-                                frequency,
-                                spec_in_db,
-                                shading="gouraud"
-                            )
+                            freq_s, time_s, Sxx = scipy_spectrogram(audio, fs, nperseg=512)
+                            Sxx_db = 10 * np.log10(Sxx + 1e-10)
 
+                            ax1.pcolormesh(time_s, freq_s, Sxx_db, shading="gouraud")
                             ax1.scatter(
-                                time_vals[peaks[:,1]],
-                                frequency[peaks[:,0]],
+                                time_vals[peaks[:, 1]],
+                                frequency[peaks[:, 0]],
                                 c="red",
                                 s=4
                             )
-
-                            ax1.set_title(
-                                "Spectrogram with Peaks"
-                            )
-
+                            ax1.set_title("Spectrogram with Peaks")
+                            ax1.set_ylim(0, 5000)
+                            ax1.set_xlabel("Time (s)")
+                            ax1.set_ylabel("Frequency (Hz)")
                             st.pyplot(fig1)
+                            plt.close(fig1)
 
                         with col2:
-
-                            fig2, ax2 = plt.subplots(
-                                figsize=(5,3)
-                            )
-                            fig2.patch.set_facecolor("white")
-                            ax2.set_facecolor("white")
+                            fig2, ax2 = plt.subplots(figsize=(6, 4))
                             ax2.scatter(
-                                time_vals[peaks[:,1]],
-                                frequency[peaks[:,0]],
+                                time_vals[peaks[:, 1]],
+                                frequency[peaks[:, 0]],
                                 c="red",
                                 s=4
                             )
-
-                            ax2.set_xticks([])
-
-                            ax2.set_yticks([])
-
-                            ax2.set_title(
-                                "Constellation Map"
-                            )
-
+                            ax2.set_title("Constellation Map")
+                            ax2.set_xlabel("Time (s)")
+                            ax2.set_ylabel("Frequency (Hz)")
                             st.pyplot(fig2)
+                            plt.close(fig2)
 
                         st.divider()
-
                         st.metric(
                             "Fingerprint Hashes Generated",
-                            len(
-                                query_hashes[0]["hashes"]
-                            )
+                            len(query_hashes[0]["hashes"])
                         )
-
-                        st.divider()
-
-                        # =====================
-                        # STEP 3
-                        # =====================
-
-                        st.markdown("""
+                        st.markdown(
+                        """
                         # STEP 3 : DATABASE MATCHING
 
                         The generated fingerprint hashes are compared with the database, and an offset histogram is used to identify the song with the strongest alignment.
@@ -436,8 +403,10 @@ with tab3:
                             matched_song,
                             offset_count
                         )
+                        if hist_fig:
+                            st.pyplot(hist_fig)
+                            plt.close(hist_fig)
 
-                        st.pyplot(hist_fig)
                         st.success(
                             f"Final Match : {matched_song}"
                         )
