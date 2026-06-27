@@ -4,9 +4,4 @@ scipy
 scikit-image
 matplotlib
 pandas
-audioread
 soundfile
-decorator
-librosa==0.10.2
-numba==0.60.0
-llvmlite==0.43.0
