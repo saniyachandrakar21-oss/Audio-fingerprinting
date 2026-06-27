@@ -5,6 +5,7 @@ from fingerprint_engine import (
     plot_offset_histogram,
     get_library_data
 )
+import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,8 +16,6 @@ import librosa.display
 import matplotlib.pyplot as plt
 import tempfile
 import os
-
-import pickle
 
 SONG_FOLDER = "songs"
 
@@ -41,10 +40,7 @@ with tab1:
 
     st.subheader("Library")
 
-    library_data = get_library_data(
-        SONG_FOLDER
-    )
-
+    library_data = []
     cols = st.columns(4)
 
     for idx, song in enumerate(library_data):
