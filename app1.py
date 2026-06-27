@@ -16,8 +16,13 @@ import matplotlib.pyplot as plt
 import tempfile
 import os
 
+import pickle
+
 SONG_FOLDER = "songs"
-database = build_database(SONG_FOLDER)
+
+with open("database.pkl", "rb") as f:
+    database = pickle.load(f)
+
 st.set_page_config(
     page_title="EE200 Audio Fingerprinting",
     layout="wide"
