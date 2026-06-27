@@ -99,6 +99,9 @@ with tab1:
                 for spine in ax.spines.values():
                     spine.set_visible(False)
 
+                peaks = np.array(song["peaks"])
+                freq = np.array(song["frequency"])
+                time_vals = np.array(song["time"])
                 st.pyplot(fig)
 with tab2:
 
