@@ -1,0 +1,15 @@
+name: streamlit-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - librosa=0.10.2
+  - numba=0.60.0
+  - llvmlite=0.43.0
+  - scipy
+  - scikit-image
+  - matplotlib
+  - pandas
+  - pip:
+    - streamlit
