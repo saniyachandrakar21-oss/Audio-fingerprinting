@@ -1,7 +1,9 @@
 streamlit
-librosa
 numpy
 scipy
 scikit-image
 matplotlib
 pandas
+librosa==0.10.2
+numba==0.59.1
+llvmlite==0.42.0
