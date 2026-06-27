@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import tempfile
 import os
 import pickle
+
 @st.cache_resource
 def load_database():
     with open("database.pkl", "rb") as f:
@@ -37,6 +38,12 @@ st.set_page_config(
     page_title="EE200 Audio Fingerprinting",
     layout="wide"
 )
+@st.cache_data
+def load_library_data():
+    with open("library_data.pkl", "rb") as f:
+        return pickle.load(f)
+
+library_data = load_library_data()
 
 st.title("🎵 EE200: Audio Fingerprinting")
 
@@ -49,12 +56,16 @@ tab1, tab2, tab3 = st.tabs(
 )
 with tab1:
     st.subheader("Library")
-    song_names = load_library_names()
-    st.success(f"{len(song_names)} songs indexed in database")
+    st.success(f"{len(library_data)} songs indexed in database")
+
     cols = st.columns(4)
-    for idx, name in enumerate(song_names):
+    colors = ["#00FFFF", "#FFD700", "#FF69B4", "#AD8CFF", "#7CFC00"]
+
+    for idx, song in enumerate(library_data):
         with cols[idx % 4]:
             with st.container(border=True):
+                song_name = os.path.splitext(song["name"])[0]
+
                 st.markdown(
                     f"""
                     <div style="
@@ -62,11 +73,33 @@ with tab1:
                         overflow:hidden;
                         text-align:center;
                     ">
-                        <b>{os.path.splitext(name)[0]}</b>
+                        <b>{song_name}</b><br>
+                        {song['hashes']:,} hashes
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
+
+                fig, ax = plt.subplots(figsize=(3, 2))
+                peaks = song["peaks"]
+                freq = song["frequency"]
+                time_vals = song["time"]
+
+                ax.set_facecolor("black")
+                ax.scatter(
+                    time_vals[peaks[:,1]],
+                    freq[peaks[:,0]],
+                    s=0.1,
+                    c=colors[idx % len(colors)]
+                )
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_xlabel("")
+                ax.set_ylabel("")
+                for spine in ax.spines.values():
+                    spine.set_visible(False)
+
+                st.pyplot(fig)
 with tab2:
 
     st.subheader("Identify a Clip")
