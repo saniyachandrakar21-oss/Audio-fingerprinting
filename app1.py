@@ -1,3 +1,6 @@
+import os
+os.environ["NUMBA_CACHE_DIR"] = "/tmp/"
+os.environ["NUMBA_DISABLE_JIT"] = "1"
 from fingerprint_engine import (
     build_database,
     generate_query_hashes,
