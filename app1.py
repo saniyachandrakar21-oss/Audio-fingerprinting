@@ -12,8 +12,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-import librosa
-import librosa.display
+import soundfile as sf
+from scipy.signal import spectrogram as scipy_spectrogram
 
 import matplotlib.pyplot as plt
 import tempfile
@@ -137,12 +137,11 @@ with tab2:
 
                 query_path = tmp.name
 
-            audio, fs = librosa.load(
-                query_path,
-                sr=None
-            )
-            y = audio
-            sr = fs
+            audio, fs = sf.read(query_path)
+            if audio.ndim > 1:
+                audio = audio.mean(axis=1)
+                y = audio
+                sr = fs
 
             query_hashes, constellation_data = generate_query_hashes(
                 query_path
@@ -169,18 +168,12 @@ with tab2:
 
                 fig, ax = plt.subplots(figsize=(4,3))
 
-                D = librosa.amplitude_to_db(
-                    np.abs(librosa.stft(audio)),
-                    ref=np.max
-                )
-
-                librosa.display.specshow(
-                    D,
-                    sr=fs,
-                    x_axis="time",
-                    y_axis="hz",
-                    ax=ax
-                )
+                freq, time, Sxx = scipy_spectrogram(audio, fs)
+                Sxx_db = 10 * np.log10(Sxx + 1e-10)
+                ax.pcolormesh(time, freq, Sxx_db, shading="gouraud")
+                ax.set_xlabel("Time (s)")
+                ax.set_ylabel("Frequency (Hz)")
+                
                 ax.set_ylim(0, 5000)
 
                 left, center, right = st.columns([1,2,1])

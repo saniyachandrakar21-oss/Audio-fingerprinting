@@ -15,7 +15,9 @@ def load_song(song_paths):
    songs = []
    for path in song_paths :
        
-        audio , f_s= librosa.load(path , sr= None)
+        audio, f_s = sf.read(path)
+        if audio.ndim > 1:
+            audio = audio.mean(axis=1)
 
         songs. append({ "name": os.path.basename(path), "audio" : audio , "fs" :f_s })
       
