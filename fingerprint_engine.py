@@ -4,23 +4,18 @@ import numpy as np
 from scipy.signal import spectrogram
 from skimage.feature import peak_local_max
 
-import librosa
-import librosa.display
 import matplotlib.pyplot as plt
 import tempfile
 import os
+import soundfile as sf
 
 def load_song(song_paths):
-    
    songs = []
-   for path in song_paths :
-       
-        audio, f_s = sf.read(path)
-        if audio.ndim > 1:
-            audio = audio.mean(axis=1)
-
-        songs. append({ "name": os.path.basename(path), "audio" : audio , "fs" :f_s })
-      
+   for path in song_paths:
+       audio, f_s = sf.read(path)
+       if audio.ndim > 1:
+           audio = audio.mean(axis=1)  # stereo to mono
+       songs.append({"name": os.path.basename(path), "audio": audio, "fs": f_s})
    return songs
 
 def plot_spectrograms(songs,nperseg=4095,show_plot=True):

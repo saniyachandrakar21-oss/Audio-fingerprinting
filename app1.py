@@ -307,10 +307,9 @@ with tab3:
 
                         query_path = tmp.name
 
-                    audio, fs = librosa.load(
-                        query_path,
-                        sr=None
-                    )
+                    audio, fs = sf.read(query_path)
+                    if audio.ndim > 1:
+                        audio = audio.mean(axis=1)
 
                     query_hashes, constellation_data = generate_query_hashes(
                         query_path
@@ -348,18 +347,11 @@ with tab3:
                             figsize=(4,3)
                         )
 
-                        D = librosa.amplitude_to_db(
-                            np.abs(librosa.stft(audio)),
-                            ref=np.max
-                        )
-
-                        librosa.display.specshow(
-                            D,
-                            sr=fs,
-                            x_axis="time",
-                            y_axis="hz",
-                            ax=ax
-                        )
+                        freq, time_s, Sxx = scipy_spectrogram(audio, fs)
+                        Sxx_db = 10 * np.log10(Sxx + 1e-10)
+                        ax.pcolormesh(time_s, freq, Sxx_db, shading="gouraud")
+                        ax.set_xlabel("Time (s)")
+                        ax.set_ylabel("Frequency (Hz)")
 
                         ax.set_ylim(0,5000)
 
