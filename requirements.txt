@@ -3,6 +3,6 @@ numpy
 pandas
 matplotlib
 scipy
-scikit-image
+scikit-image==0.22.0
 librosa
 soundfile
