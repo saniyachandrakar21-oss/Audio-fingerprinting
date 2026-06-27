@@ -1,8 +1,8 @@
 streamlit
-numpy
-pandas
-matplotlib
-librosa
-scipy
-scikit-image
-soundfile
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.8.4
+scipy==1.13.1
+soundfile==0.12.1
+scikit-image==0.22.0
+librosa==0.10.2.post1
