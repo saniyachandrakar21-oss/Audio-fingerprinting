@@ -38,9 +38,19 @@ with tab1:
 
     st.subheader("Library")
 
-    library_data = get_library_data(
-        SONG_FOLDER
-    )
+    # In app.py, replace the get_library_data call with:
+    @st.cache_data
+    def load_library():
+        return get_library_data(SONG_FOLDER)
+
+    library_data = load_library()
+
+    @st.cache_resource
+    def load_database():
+        with open("database.pkl", "rb") as f:
+            return pickle.load(f)
+
+    database = load_database()
 
     cols = st.columns(4)
 
