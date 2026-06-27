@@ -5,7 +5,6 @@ from fingerprint_engine import (
     plot_offset_histogram,
     get_library_data
 )
-import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -18,10 +17,7 @@ import tempfile
 import os
 
 SONG_FOLDER = "songs"
-
-with open("database.pkl", "rb") as f:
-    database = pickle.load(f)
-
+database = build_database(SONG_FOLDER)
 st.set_page_config(
     page_title="EE200 Audio Fingerprinting",
     layout="wide"
@@ -40,18 +36,10 @@ with tab1:
 
     st.subheader("Library")
 
-    library_data = []
-    for song in os.listdir(SONG_FOLDER):
+    library_data = get_library_data(
+        SONG_FOLDER
+    )
 
-        library_data.append(
-            {
-                "name": song,
-                "hashes": "Indexed",
-                "peaks": np.empty((0,2),dtype=int),
-                "frequency": np.array([]),
-                "time": np.array([])
-            }
-        )
     cols = st.columns(4)
 
     for idx, song in enumerate(library_data):
@@ -95,13 +83,12 @@ with tab1:
                 "#7CFC00"    # green
             ]
             display_peaks = peaks[::3]
-            if len(peaks) > 0:
-                ax.scatter(
-                    time_vals[peaks[:,1]],
-                    freq[peaks[:,0]],
-                    s=0.1,
-                    c=colors[idx % len(colors)]
-                )
+            ax.scatter(
+                time_vals[peaks[:,1]],
+                freq[peaks[:,0]],
+                s=0.1,
+                c=colors[idx % len(colors)]
+            )
             
             ax.set_xticks([])
             ax.set_yticks([])
