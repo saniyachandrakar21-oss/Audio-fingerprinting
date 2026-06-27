@@ -41,6 +41,17 @@ with tab1:
     st.subheader("Library")
 
     library_data = []
+    for song in os.listdir(SONG_FOLDER):
+
+        library_data.append(
+            {
+                "name": song,
+                "hashes": "Indexed",
+                "peaks": np.empty((0,2),dtype=int),
+                "frequency": np.array([]),
+                "time": np.array([])
+            }
+        )
     cols = st.columns(4)
 
     for idx, song in enumerate(library_data):
@@ -84,12 +95,13 @@ with tab1:
                 "#7CFC00"    # green
             ]
             display_peaks = peaks[::3]
-            ax.scatter(
-                time_vals[peaks[:,1]],
-                freq[peaks[:,0]],
-                s=0.1,
-                c=colors[idx % len(colors)]
-            )
+            if len(peaks) > 0:
+                ax.scatter(
+                    time_vals[peaks[:,1]],
+                    freq[peaks[:,0]],
+                    s=0.1,
+                    c=colors[idx % len(colors)]
+                )
             
             ax.set_xticks([])
             ax.set_yticks([])
